@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import { v2 as cloudinary } from "cloudinary";
 
-import Notification from "../models/notfication.model.js";
+import Notification from "../models/notification.model.js";
 import User from "../models/user.model.js";
 
 export const getUserProfile = async (req, res) => {
@@ -91,7 +91,8 @@ export const getSuggestedUsers = async (req, res) => {
 };
 
 export const updateUser = async (req, res) => {
-  const { fullName, email, username, currentPassword, newPassword, bio, link } = req.body;
+  const { fullName, email, username, currentPassword, newPassword, bio, link } =
+    req.body;
   let { profileImg, coverImg } = req.body;
 
   const userId = req.user._id;
@@ -104,11 +105,9 @@ export const updateUser = async (req, res) => {
       (!newPassword && currentPassword) ||
       (!currentPassword && newPassword)
     ) {
-      return res
-        .status(400)
-        .json({
-          error: "Please provide both current password and new password",
-        });
+      return res.status(400).json({
+        error: "Please provide both current password and new password",
+      });
     }
 
     if (currentPassword && newPassword) {
