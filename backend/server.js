@@ -21,7 +21,7 @@ const app = express();
 const PORT = process.env.PORT || 8000;
 
 // Middlewares
-app.use(express.json({ limit: "5mb", extended: true })); // to parse req.body // don't set too large limit bcos of denial-of-service (DoS) attack
+app.use(express.json({ limit: "15mb", extended: true })); // to parse req.body // don't set too large limit bcos of denial-of-service (DoS) attack
 app.use(express.urlencoded({ extended: true })); // to parse form date (urlencoded)
 
 app.use(cookieParser()); // to parse the req so that we can get the cookies
