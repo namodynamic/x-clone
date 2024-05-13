@@ -5,8 +5,6 @@ import Posts from "../../components/common/Posts";
 import ProfileHeaderSkeleton from "../../components/skeletons/ProfileHeaderSkeleton";
 import EditProfileModal from "./EditProfileModal";
 
-import { POSTS } from "../../utils/db/dummy";
-
 import { FaArrowLeft } from "react-icons/fa6";
 import { IoCalendarOutline } from "react-icons/io5";
 import { FaLink } from "react-icons/fa";
@@ -18,7 +16,7 @@ import useFollow from "../../hooks/useFollow";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import useUpdateUserProfile from "../../hooks/useUpdateUserProfile";
 
-const ProfilePage = () => {
+const ProfilePage = ({ userId }) => {
   const [coverImg, setCoverImg] = useState(null);
   const [profileImg, setProfileImg] = useState(null);
   const [feedType, setFeedType] = useState("posts");
@@ -41,6 +39,31 @@ const ProfilePage = () => {
     queryFn: async () => {
       try {
         const res = await fetch(`/api/users/profile/${username}`);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Something went wrong");
+        return data;
+      } catch (error) {
+        throw new Error(error);
+      }
+    },
+  });
+
+  const getPostEndpoint = () => {
+    switch (feedType) {
+      case "posts":
+        return `/api/posts/user/${username}`;
+      case "likes":
+        return `/api/posts/likes/${userId}`;
+    }
+  };
+
+  const POST_ENDPOINT = getPostEndpoint();
+
+  const { data: POSTS } = useQuery({
+    queryKey: ["posts"],
+    queryFn: async () => {
+      try {
+        const res = await fetch(POST_ENDPOINT);
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Something went wrong");
         return data;
@@ -91,9 +114,16 @@ const ProfilePage = () => {
                 </Link>
                 <div className="flex flex-col">
                   <p className="font-bold text-lg">{user?.fullName}</p>
-                  <span className="text-sm text-slate-500">
-                    {POSTS?.length} posts
-                  </span>
+                  {feedType === "posts" && (
+                    <span className="text-sm text-slate-500">
+                      {POSTS?.length} posts
+                    </span>
+                  )}
+                  {feedType === "likes" && (
+                    <span className="text-sm text-slate-500">
+                      {POSTS?.length} likes
+                    </span>
+                  )}
                 </div>
               </div>
               {/* COVER IMG */}
@@ -163,9 +193,9 @@ const ProfilePage = () => {
                   <button
                     className="btn btn-primary rounded-full btn-sm text-white px-4 ml-2"
                     onClick={async () => {
-                     await updateProfile({coverImg, profileImg})
-                     setProfileImg(null)
-                     setCoverImg(null)
+                      await updateProfile({ coverImg, profileImg });
+                      setProfileImg(null);
+                      setCoverImg(null);
                     }}
                   >
                     {isUpdatingProfile ? (
